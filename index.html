@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>צ'ק ליסט פתיחה בחדר כושר</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      min-height: 100vh;
+    }
+    .checklist {
+      max-width: 100%;
+      margin: 0;
+      background: #fff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    .logo {
+      width: 120px;
+      height: auto;
+    }
+    h1 {
+      text-align: center;
+      flex-grow: 1;
+      margin: 0;
+      font-size: 1.8em;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      font-size: 1.3em;
+    }
+    .checklist-item input[type="checkbox"] {
+      margin-left: 15px;
+      transform: scale(1.8);
+    }
+    .completed {
+      color: grey;
+    }
+    .signature {
+      margin-top: 30px;
+    }
+    .signature label {
+      margin-bottom: 10px;
+      font-size: 1.3em;
+    }
+    .signature input {
+      padding: 15px;
+      font-size: 1.3em;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      direction: rtl;
+      text-align: right;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 20px;
+      font-size: 1.4em;
+      margin-top: 30px;
+      border: none;
+      background: #007BFF;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .datetime {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.4em;
+      color: #666;
+    }
+    .datetime span {
+      margin: 0 5px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="checklist" id="checklist">
+    <div class="header">
+      <h1>צ'קליסט פתיחה מדריכים</h1>
+      <img src="logo.png" alt="Great Shape Logo" class="logo">
+    </div>
+    <div class="datetime">
+      <span id="current-date"></span>
+      <span id="current-time"></span>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="item1" onchange="toggleComplete(this)">
+      <label for="item1">נטרול אזעקה קוד 1309</label>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="item2" onchange="toggleComplete(this)">
+      <label for="item2">הדלקת אורות ומזגנים</label>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="item3" onchange="toggleComplete(this)">
+      <label for="item3">בדיקת ניקיון בחד"כ ובמלתחות</label>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="item4" onchange="toggleComplete(this)">
+      <label for="item4">בדיקת חוסרים פינת קפה</label>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="item5" onchange="toggleComplete(this)">
+      <label for="item5">בדיקת תקינות מכשירים ותקלות</label>
+    </div>
+    
+    <div class="signature">
+      <label for="signature">חתימה: שם המדריך</label>
+      <input type="text" id="signature" placeholder="הכנס את שמך כאן">
+    </div>
+    
+    <button onclick="screenshotAndSend()">צילום מסך ושליחה בקבוצה</button>
+  </div>
+
+  <!-- כולל את ספריית html2canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    function toggleComplete(checkbox) {
+      const label = checkbox.nextElementSibling;
+      if (checkbox.checked) {
+        label.classList.add('completed');
+      } else {
+        label.classList.remove('completed');
+      }
+    }
+
+    function screenshotAndSend() {
+      const signature = document.getElementById('signature').value.trim();
+      
+      if (!signature) {
+        alert('נא להזין את שם המדריך לפני צילום המסך');
+        return;
+      }
+      
+      const checklistElement = document.getElementById('checklist');
+      
+      // הסתרת הלוגו זמנית לפני הצילום
+      const logo = document.querySelector('.logo');
+      logo.style.display = 'none';
+      
+      html2canvas(checklistElement, {
+        backgroundColor: '#ffffff',
+        scale: 2, // לאיכות תמונה טובה יותר
+        logging: false,
+        removeContainer: false
+      }).then(canvas => {
+        // החזרת הלוגו לתצוגה
+        logo.style.display = '';
+        
+        const imgData = canvas.toDataURL("image/png");
+        
+        const newWindow = window.open();
+        if (newWindow) {
+          newWindow.document.write(`
+            <html>
+              <head>
+                <title>צילום מסך הצ'ק ליסט</title>
+              </head>
+              <body style="margin:0; padding:0; background: #ffffff;">
+                <img src="${imgData}" alt="Screenshot">
+              </body>
+            </html>
+          `);
+        } else {
+          alert("נא לאפשר חלונות קופצים כדי לבצע את הפעולה.");
+        }
+      }).catch(error => {
+        // החזרת הלוגו לתצוגה במקרה של שגיאה
+        logo.style.display = '';
+        console.error("אירעה שגיאה בעת צילום המסך: ", error);
+        alert("אירעה שגיאה בעת יצירת צילום המסך. אנא נסה שוב.");
+      });
+    }
+
+    // הוספת פונקציה להצגת תאריך ושעה
+    function updateDateTime() {
+      const now = new Date();
+      const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+      const timeOptions = { hour: '2-digit', minute: '2-digit' };
+      
+      document.getElementById('current-date').textContent = now.toLocaleDateString('he-IL', dateOptions);
+      document.getElementById('current-time').textContent = now.toLocaleTimeString('he-IL', timeOptions);
+    }
+
+    // עדכון התאריך והשעה בטעינת הדף
+    updateDateTime();
+    // עדכון השעה כל דקה
+    setInterval(updateDateTime, 60000);
+  </script>
+</body>
+</html>
